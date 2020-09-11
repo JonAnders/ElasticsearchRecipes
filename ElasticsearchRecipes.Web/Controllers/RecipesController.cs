@@ -41,7 +41,11 @@ namespace ElasticsearchRecipes.Web.Controllers
                 return s;
             });
 
-            return View(searchResponse.Documents);
+            return View(new RecipesViewModel
+            {
+                Query = query,
+                Recipes = searchResponse.Documents
+            });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
