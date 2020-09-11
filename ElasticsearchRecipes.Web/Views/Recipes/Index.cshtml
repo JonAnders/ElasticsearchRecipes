@@ -1,6 +1,6 @@
 ﻿@model RecipesViewModel
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Elasticsearch Recipes";
 }
 
 <div class="text-center">
@@ -36,7 +36,7 @@
                 @foreach (var recipe in Model.Recipes)
                 {
                     <tr>
-                        <td>@recipe.Title</td>
+                        <td><a asp-action="Detail" asp-route-id="@recipe.Id">@recipe.Title</a></td>
                         <td>@recipe.PreparationTimeMinutes mins</td>
                         <td>@recipe.Ingredients?.Count()</td>
                     </tr>

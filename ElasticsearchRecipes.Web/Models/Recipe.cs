@@ -9,6 +9,7 @@ namespace ElasticsearchRecipes.Web.Models
 {
     public class Recipe
     {
+        public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         [Number(Name = "preparation_time_minutes")]

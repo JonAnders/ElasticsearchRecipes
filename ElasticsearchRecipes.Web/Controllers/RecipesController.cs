@@ -41,11 +41,25 @@ namespace ElasticsearchRecipes.Web.Controllers
                 return s;
             });
 
+            var recipes = searchResponse.Hits.Select(h =>
+            {
+                h.Source.Id = h.Id;
+                return h.Source;
+            });
+
             return View(new RecipesViewModel
             {
                 Query = query,
-                Recipes = searchResponse.Documents
+                Recipes = recipes
             });
+        }
+
+        [Route("{id}")]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var getResponse = await _elasticClient.GetAsync<Recipe>(id, g => g.Index("recipes"));
+
+            return View(getResponse.Source);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
