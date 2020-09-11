@@ -22,9 +22,24 @@ namespace ElasticsearchRecipes.Web.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string query)
         {
-            var searchResponse = await _elasticClient.SearchAsync<Recipe>(s => s.Index("recipes"));
+            var searchResponse = await _elasticClient.SearchAsync<Recipe>(s =>
+            {
+                s = s.Index("recipes");
+                if (!string.IsNullOrWhiteSpace(query))
+                    s = s
+                        .Query(q => q
+                                   .MultiMatch(m => m
+                                                   .Query(query)
+                                                   .Fields(f => f
+                                                               .Field(p => p.Title)
+                                                               .Field(p => p.Description)
+                                                   )
+                                   )
+                        );
+                return s;
+            });
 
             return View(searchResponse.Documents);
         }
