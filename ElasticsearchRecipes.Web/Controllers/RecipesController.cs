@@ -7,20 +7,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ElasticsearchRecipes.Web.Models;
 
+using Nest;
+
 namespace ElasticsearchRecipes.Web.Controllers
 {
     public class RecipesController : Controller
     {
+        private readonly IElasticClient _elasticClient;
         private readonly ILogger<RecipesController> _logger;
 
-        public RecipesController(ILogger<RecipesController> logger)
+        public RecipesController(IElasticClient elasticClient, ILogger<RecipesController> logger)
         {
+            _elasticClient = elasticClient;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var searchResponse = await _elasticClient.SearchAsync<Recipe>(s => s.Index("recipes"));
+
+            return View(searchResponse.Documents);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
