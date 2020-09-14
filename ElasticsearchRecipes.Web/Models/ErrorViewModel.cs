@@ -1,5 +1,3 @@
-using System;
-
 namespace ElasticsearchRecipes.Web.Models
 {
     public class ErrorViewModel
