@@ -15,6 +15,7 @@ namespace ElasticsearchRecipes.Web.Models
         [Number(Name = "preparation_time_minutes")]
         public int PreparationTimeMinutes { get; set; }
         public IEnumerable<Ingredient> Ingredients { get; set; }
+        public IEnumerable<string> Steps { get; set; }
 
         public class Ingredient
         {
