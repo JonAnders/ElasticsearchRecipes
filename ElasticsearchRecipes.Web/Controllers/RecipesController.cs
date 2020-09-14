@@ -22,24 +22,47 @@ namespace ElasticsearchRecipes.Web.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string query)
+        public async Task<IActionResult> Index(string query, string preptime)
         {
-            var searchResponse = await _elasticClient.SearchAsync<Recipe>(s =>
-            {
-                s = s.Index("recipes");
-                if (!string.IsNullOrWhiteSpace(query))
-                    s = s
-                        .Query(q => q
-                                   .MultiMatch(m => m
-                                                   .Query(query)
-                                                   .Fields(f => f
-                                                               .Field(p => p.Title)
-                                                               .Field(p => p.Description)
-                                                   )
-                                   )
-                        );
-                return s;
-            });
+            // Is there a better way of building up an elasticsearch query? This is a bit messy...
+            var searchResponse = await this._elasticClient.SearchAsync<Recipe>(s => s
+                .Index("recipes")
+                .Query(q => q
+                    .Bool(b =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(query))
+                            b = b.Must(bq => bq
+                                .MultiMatch(m => m
+                                    .Query(query)
+                                    .Fields(f => f
+                                        .Field(p => p.Title)
+                                        .Field(p => p.Description))));
+
+                        switch (preptime)
+                        {
+                            case "15":
+                                b = b.Filter(fq => fq
+                                    .Range(nr => nr
+                                        .Field(p => p.PreparationTimeMinutes)
+                                        .LessThanOrEquals(15)));
+                                break;
+                            case "30":
+                                b = b.Filter(fq => fq
+                                    .Range(nr => nr
+                                        .Field(p => p.PreparationTimeMinutes)
+                                        .GreaterThanOrEquals(15)
+                                        .LessThanOrEquals(30)));
+                                break;
+                            case "more":
+                                b = b.Filter(fq => fq
+                                    .Range(nr => nr
+                                        .Field(p => p.PreparationTimeMinutes)
+                                        .GreaterThanOrEquals(30)));
+                                break;
+                        }
+
+                        return b;
+                    })));
 
             var recipes = searchResponse.Hits.Select(h =>
             {
@@ -50,7 +73,8 @@ namespace ElasticsearchRecipes.Web.Controllers
             return View(new RecipesViewModel
             {
                 Query = query,
-                Recipes = recipes
+                Recipes = recipes,
+                PrepTime = preptime
             });
         }
 

@@ -17,6 +17,11 @@
                     <input type="text" class="form-control" name="query" placeholder="What's your favorite?" value="@Model.Query"/>
                 </div>
                 <div class="form-group">
+                    <label for="preptime">Prep time</label>
+                    <select id="preptime" name="preptime" asp-for="PrepTime" asp-items="Model.PrepTimeListItems">
+                    </select>
+                </div>
+                <div class="form-group">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </form>
